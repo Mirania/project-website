@@ -1,0 +1,33 @@
+body {
+    margin: 0; 
+}
+
+canvas {
+    display: block; 
+    background: url("/demo/assets/bg.jpg") no-repeat center;
+    background-position: 50% 50%;
+    background-size: cover;
+}
+
+.chatbox {
+    position: absolute;
+    background: radial-gradient(transparent, black);
+    opacity: 70%;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-weight: bold;
+    font-size: 4vh;
+    color: lightgray;
+    line-height: 10vh;
+    height: 10vh;
+    width: 100%;
+    text-align: center;
+    bottom: 10vh;
+    text-shadow: 2px 0 0 #000, 
+                 -2px 0 0 #000, 
+                 0 2px 0 #000, 
+                 0 -2px 0 #000, 
+                 1px 1px #000, 
+                 -1px -1px 0 #000,
+                 1px -1px 0 #000, 
+                 -1px 1px 0 #000;
+}
