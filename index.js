@@ -1,3 +1,3 @@
 const server = require("./built/server.js");
 
-server.init(3000);
+server.init(process.env.PORT || 3000);
