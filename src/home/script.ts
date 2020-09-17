@@ -1,11 +1,26 @@
+import { BloomPass } from "../global/three/examples/jsm/postprocessing/BloomPass.js";
 import { EffectComposer } from "../global/three/examples/jsm/postprocessing/EffectComposer.js";
 import { GlitchPass } from "../global/three/examples/jsm/postprocessing/GlitchPass.js";
 import { RenderPass } from "../global/three/examples/jsm/postprocessing/RenderPass.js";
+import { ShaderPass } from "../global/three/examples/jsm/postprocessing/ShaderPass.js";
 import { UnrealBloomPass } from "../global/three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { FXAAShader } from "../global/three/examples/jsm/shaders/FXAAShader.js";
 import * as THREE from "../global/three/src/Three.js";
 
 let homeCanvas: HTMLCanvasElement;
 let fadeRoutine: NodeJS.Timeout;
+let curtainRoutine: NodeJS.Timeout;
+let progressRoutine: NodeJS.Timeout;
+let bloomStrength: number;
+let bloomIncreasing: boolean;
+let bgSlider: number;
+let loadingProgress: number;
+let curtain: HTMLDivElement;
+let progressBarContainer: HTMLDivElement;
+let progressBar: HTMLDivElement;
+let earth: THREE.Mesh<THREE.Geometry, THREE.Material>;
+let clouds: THREE.Mesh<THREE.Geometry, THREE.Material>;
+let cloudsTargetOpacity: number;
 
 homeInit();
 
@@ -15,21 +30,30 @@ function homeInit(): void {
     const camera = new THREE.OrthographicCamera(-1 * aspect, 1 * aspect, 1, -1, 1, 1000);
     const loader = new THREE.TextureLoader();
     const renderer = new THREE.WebGLRenderer({
+        antialias: true,
         alpha: true
     });
 
     camera.position.set(5, 5, 5);
     camera.lookAt(scene.position);
 
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(getAdjustedPixelRatio());
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+
+    bgSlider = 0, loadingProgress = 25;
+    homeCanvas = document.getElementsByTagName("canvas")[0];
+    curtain = document.getElementById("curtain") as HTMLDivElement;
+    progressBarContainer = document.getElementById("progress-container") as HTMLDivElement;
+    progressBar = document.getElementById("progress") as HTMLDivElement;
+    adjustProgressBar();
 
     const light = new THREE.DirectionalLight(0xffffff, 0.65);
     scene.add(light);
 
-    const earth = createEarth(loader);
-    const clouds = createEarthClouds();  
+    earth = createEarth(loader); loadingProgress = 60;
+    clouds = createEarthClouds(); loadingProgress = 80;
+    cloudsTargetOpacity = 0.5;
     earth.add(clouds);
     scene.add(earth);
 
@@ -37,25 +61,36 @@ function homeInit(): void {
     earth.rotateY(radians(15));
     earth.rotateZ(radians(-20));
 
-    homeCanvas = document.getElementsByTagName("canvas")[0];
-
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
+    loadingProgress = 85;
 
+    bloomStrength = 0.2, bloomIncreasing = true;
     const bloomPass = new UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight), 0.2, 0.5, 0
+        new THREE.Vector2(window.innerWidth, window.innerHeight), bloomStrength, 0.75, 0
     );
     composer.addPass(bloomPass);
+    loadingProgress = 90;
+
+    const fxaaPass = new ShaderPass(FXAAShader);
+    fxaaPass.material.uniforms['resolution'].value.x = 1 / (homeCanvas.offsetWidth);
+    fxaaPass.material.uniforms['resolution'].value.y = 1 / (homeCanvas.offsetHeight);
+    composer.addPass(fxaaPass);
+    loadingProgress = 95;
 
     const glitchPass = new GlitchPass();
     composer.addPass(glitchPass);
+    loadingProgress = 100;
 
-    fadeObjectsIn(earth, clouds, 0.6);
+    //liftCurtain(earth, clouds, 0.4);
+    //fadeObjectsIn(earth, clouds, 0.4);
 
-    // each frame
+    // each frame, at 30 fps
     setInterval(() => {
         earth.rotateX(radians(0.025));
-        clouds.rotateX(radians(0.035));
+        clouds.rotateX(radians(0.045));
+        adjustBloomStrength(bloomPass);
+        adjustHomeCanvas();
         composer.render();
     }, 1 / 30 * 1000);
 
@@ -64,19 +99,69 @@ function homeInit(): void {
 
 function onResize(camera: THREE.OrthographicCamera, renderer: THREE.WebGLRenderer, composer: EffectComposer) {
     camera.updateProjectionMatrix();
+    renderer.setPixelRatio(getAdjustedPixelRatio());
     renderer.setSize(window.innerWidth, window.innerHeight);
     composer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function adjustHomeCanvas(): void {
-    homeCanvas.style.backgroundPosition = `50% ${50}%`;
+function getAdjustedPixelRatio(): number {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const pixels = width * height;
+    if (pixels <= 360 * 720) return 0.75;
+    if (pixels <= 768 * 1024) return 0.9;
+    if (pixels <= 1500 * 1000) return 1;
+    if (pixels <= 2000 * 1100) return 1;
+    if (pixels <= 3000 * 2000) return 0.8;
+    if (pixels <= 4000 * 3000) return 0.65;
+    return 0.5;
 }
 
-function fadeObjectsIn(
-    earth: THREE.Mesh<THREE.Geometry, THREE.Material>,
-    clouds: THREE.Mesh<THREE.Geometry, THREE.Material>,
-    cloudsTargetOpacity: number
-): void {
+function adjustBloomStrength(bloomPass: UnrealBloomPass): void {
+    if (bloomStrength >= 0.3) bloomIncreasing = false;
+    else if (bloomStrength <= 0.2) bloomIncreasing = true;
+    bloomStrength = bloomIncreasing ? bloomStrength + 0.00025 : bloomStrength - 0.00025;
+    bloomPass.strength = bloomStrength;
+}
+
+function adjustHomeCanvas(): void {
+    bgSlider = window.innerHeight > 1000 ? bgSlider - 0.3 : bgSlider + 0.15;
+    homeCanvas.style.backgroundPosition = `50% ${bgSlider}%`;
+}
+
+function adjustProgressBar(): void {
+    let current = 15;
+    progressRoutine = setInterval(() => {
+        if (current <= 100) {
+            if (current <= loadingProgress) {
+                progressBar.style.width = `${current++}%`;
+            }       
+        } else {
+            progressBarContainer.style.visibility = "hidden";
+            liftCurtain();
+            clearInterval(progressRoutine);
+        }
+    }, 1 / 60 * 1000);
+}
+
+function liftCurtain(): void {
+    let fadeFrame = 0, fadeDuration = 15;
+    earth.material.opacity = 1;
+    clouds.material.opacity = cloudsTargetOpacity;
+    curtainRoutine = setInterval(() => {
+        if (fadeFrame <= fadeDuration) {
+            curtain.style.opacity = (1 - fadeFrame / fadeDuration).toString();
+            fadeFrame++;
+        }
+        if (fadeFrame === fadeDuration) {
+            curtain.style.visibility = "hidden";
+            clearInterval(curtainRoutine);
+        }
+    }, 1 / 30 * 1000);
+}
+
+// unused
+function fadeObjectsIn(): void {
     let fadeFrame = 0, fadeDuration = 15;
     fadeRoutine = setInterval(() => {
         if (fadeFrame <= fadeDuration) {

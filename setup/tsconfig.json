@@ -2,7 +2,7 @@
     "compilerOptions": {
         "target": "ES2015",
         "module": "CommonJS",
-        "moduleResolution": "classic",
+        "moduleResolution": "Node",
         "outDir": "../built",
         "rootDir": "./"
     }

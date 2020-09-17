@@ -8,31 +8,41 @@
     <script type="module" src="global/composer.js"></script>
     <script src="demo/js/helpers.js"></script>
     <script src="projects/js/builders.js"></script>
+    <script src="js/nav.js"></script>
 </head>
 
 <body>
     <script type="module" src="js/script.js"></script>
     <div class="front">
         <div class="container">
-            <div class="vcenter-container">
-                <div class="stripe title montserrat black-text-border">Carlos Ferreira</div>
-                <div class="stripe subtitle montserrat">Full Stack Developer</div>
-                <div class="sep"></div>
-                <div class="stripe buttons">
-                    <div class="button-container">
-                        <div class="button montserrat dark button-right">
-                            <span class="dark gold-text-border">&lt;</span> 
-                            &nbsp;Projects
-                        </div>
+            <div class="table-container">
+                <div class="vcenter-container">
+                    <div class="name-container">
+                        <div class="stripe title montserrat bold black-text-border">Carlos Ferreira</div>
+                        <div class="stripe subtitle montserrat black-text-border">Full Stack Developer</div>
                     </div>
-                    <div class="button-container">
-                        <div class="button montserrat dark button-left">
-                            Snippets&nbsp;
-                            <span class="gold-text-border dark">&gt;</span>
+                    <div class="sep"></div>
+                    <div class="stripe buttons">
+                        <div class="button-container">
+                            <div class="button montserrat dark button-right" onclick="return projectButton()">
+                                <span class="dark gold-text-border">&lt;</span> 
+                                &nbsp;Projects
+                            </div>
+                        </div>
+                        <div class="button-container">
+                            <div class="button montserrat dark button-left" onclick="return snippetButton()">
+                                Snippets&nbsp;
+                                <span class="gold-text-border dark">&gt;</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+    <div id="curtain" class="curtain">
+        <div id="progress-container" class="progress-bar-container">
+            <div id="progress" class="progress" style="width: 15%;"></div>
         </div>
     </div>
 </body>
