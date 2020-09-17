@@ -1,13 +1,11 @@
-declare var THREE: typeof import("three");
-
 let player: Player;
 let stage: Stage;
 let canvas: HTMLCanvasElement;
 let chatbox: Chatbox;
 
-init();
+demoInit();
 
-function init(): void {
+function demoInit(): void {
 	const aspect = window.innerWidth / window.innerHeight;
 	const scene = new THREE.Scene();
 	const camera = new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 1, 1000);

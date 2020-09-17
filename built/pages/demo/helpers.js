@@ -46,6 +46,7 @@ function limit(min, value, max) {
     return value < min ? min : value > max ? max : value;
 }
 const radians = (angle) => angle * Math.PI / 180;
+const degrees = (radians) => radians / Math.PI * 180;
 // ex: 719 <=> -1
 function isEquivalentAngle(angle, targetAngle, delta = 0.01) {
     const normalizedAngle = angle < 0 ? 360 + (angle % 360) : angle % 360;

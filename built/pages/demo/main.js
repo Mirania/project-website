@@ -2,8 +2,8 @@ let player;
 let stage;
 let canvas;
 let chatbox;
-init();
-function init() {
+demoInit();
+function demoInit() {
     const aspect = window.innerWidth / window.innerHeight;
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 1, 1000);

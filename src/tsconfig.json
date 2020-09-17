@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "target": "ES2016",
+        "module": "es2015",
+        "moduleResolution": "classic",
+        "outDir": "../built",
+        "rootDir": "./"
+    }
+}
