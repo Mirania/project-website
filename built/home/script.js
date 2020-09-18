@@ -1,5 +1,4 @@
 import { EffectComposer } from "../global/three/examples/jsm/postprocessing/EffectComposer.js";
-import { GlitchPass } from "../global/three/examples/jsm/postprocessing/GlitchPass.js";
 import { RenderPass } from "../global/three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "../global/three/examples/jsm/postprocessing/ShaderPass.js";
 import { UnrealBloomPass } from "../global/three/examples/jsm/postprocessing/UnrealBloomPass.js";
@@ -21,6 +20,8 @@ let clouds;
 let cloudsTargetOpacity;
 homeInit();
 function homeInit() {
+    progressBar = document.getElementById("progress");
+    adjustProgressBar();
     const aspect = window.innerWidth / window.innerHeight;
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1 * aspect, 1 * aspect, 1, -1, 1, 1000);
@@ -29,29 +30,34 @@ function homeInit() {
         antialias: true,
         alpha: true
     });
+    loadingProgress = 10;
     camera.position.set(5, 5, 5);
     camera.lookAt(scene.position);
-    renderer.setPixelRatio(getAdjustedPixelRatio());
+    loadingProgress = 20;
+    const ratio = getAdjustedPixelRatio();
+    renderer.setPixelRatio(isPhone() ? ratio * 0.66 : ratio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
-    bgSlider = 0, loadingProgress = 25;
+    loadingProgress = 30;
+    bgSlider = 0;
     homeCanvas = document.getElementsByTagName("canvas")[0];
     curtain = document.getElementById("curtain");
     progressBarContainer = document.getElementById("progress-container");
-    progressBar = document.getElementById("progress");
-    adjustProgressBar();
+    loadingProgress = 35;
     const light = new THREE.DirectionalLight(0xffffff, 0.65);
     scene.add(light);
+    loadingProgress = 40;
     earth = createEarth(loader);
-    loadingProgress = 60;
     clouds = createEarthClouds();
-    loadingProgress = 80;
     cloudsTargetOpacity = 0.5;
     earth.add(clouds);
     scene.add(earth);
+    loadingProgress = 75;
     earth.position.set(0, -4.3, 0);
     earth.rotateY(radians(15));
     earth.rotateZ(radians(-20));
+    fadeObjectsIn();
+    loadingProgress = 80;
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
     loadingProgress = 85;
@@ -64,9 +70,9 @@ function homeInit() {
     fxaaPass.material.uniforms['resolution'].value.y = 1 / (homeCanvas.offsetHeight);
     composer.addPass(fxaaPass);
     loadingProgress = 95;
-    const glitchPass = new GlitchPass();
-    composer.addPass(glitchPass);
-    loadingProgress = 100;
+    /*const glitchPass = new GlitchPass();
+    composer.addPass(glitchPass);*/
+    //loadingProgress = 100;
     //liftCurtain(earth, clouds, 0.4);
     //fadeObjectsIn(earth, clouds, 0.4);
     // each frame, at 30 fps
@@ -78,12 +84,22 @@ function homeInit() {
         composer.render();
     }, 1 / 30 * 1000);
     window.addEventListener('resize', () => onResize(camera, renderer, composer), false);
+    loadingProgress = 100;
 }
 function onResize(camera, renderer, composer) {
     camera.updateProjectionMatrix();
     renderer.setPixelRatio(getAdjustedPixelRatio());
     renderer.setSize(window.innerWidth, window.innerHeight);
     composer.setSize(window.innerWidth, window.innerHeight);
+}
+function isPhone() {
+    return /Android/i.test(navigator.userAgent) ||
+        /webOS/i.test(navigator.userAgent) ||
+        /iPhone/i.test(navigator.userAgent) ||
+        /iPad/i.test(navigator.userAgent) ||
+        /iPod/i.test(navigator.userAgent) ||
+        /BlackBerry/i.test(navigator.userAgent) ||
+        /Windows Phone/i.test(navigator.userAgent);
 }
 function getAdjustedPixelRatio() {
     const width = window.innerWidth;
@@ -132,8 +148,8 @@ function adjustProgressBar() {
 }
 function liftCurtain() {
     let fadeFrame = 0, fadeDuration = 15;
-    earth.material.opacity = 1;
-    clouds.material.opacity = cloudsTargetOpacity;
+    //earth.material.opacity = 1;
+    //clouds.material.opacity = cloudsTargetOpacity;
     curtainRoutine = setInterval(() => {
         if (fadeFrame <= fadeDuration) {
             curtain.style.opacity = (1 - fadeFrame / fadeDuration).toString();
@@ -145,7 +161,6 @@ function liftCurtain() {
         }
     }, 1 / 30 * 1000);
 }
-// unused
 function fadeObjectsIn() {
     let fadeFrame = 0, fadeDuration = 15;
     fadeRoutine = setInterval(() => {

@@ -25,6 +25,9 @@ let cloudsTargetOpacity: number;
 homeInit();
 
 function homeInit(): void {
+    progressBar = document.getElementById("progress") as HTMLDivElement;
+    adjustProgressBar();
+
     const aspect = window.innerWidth / window.innerHeight;
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1 * aspect, 1 * aspect, 1, -1, 1, 1000);
@@ -33,33 +36,40 @@ function homeInit(): void {
         antialias: true,
         alpha: true
     });
+    loadingProgress = 10;
 
     camera.position.set(5, 5, 5);
     camera.lookAt(scene.position);
+    loadingProgress = 20;
 
-    renderer.setPixelRatio(getAdjustedPixelRatio());
+    const ratio = getAdjustedPixelRatio();
+    renderer.setPixelRatio(isPhone() ? ratio * 0.66 : ratio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+    loadingProgress = 30;
 
-    bgSlider = 0, loadingProgress = 25;
+    bgSlider = 0;
     homeCanvas = document.getElementsByTagName("canvas")[0];
     curtain = document.getElementById("curtain") as HTMLDivElement;
     progressBarContainer = document.getElementById("progress-container") as HTMLDivElement;
-    progressBar = document.getElementById("progress") as HTMLDivElement;
-    adjustProgressBar();
+    loadingProgress = 35;
 
     const light = new THREE.DirectionalLight(0xffffff, 0.65);
     scene.add(light);
+    loadingProgress = 40;
 
-    earth = createEarth(loader); loadingProgress = 60;
-    clouds = createEarthClouds(); loadingProgress = 80;
+    earth = createEarth(loader);
+    clouds = createEarthClouds();
     cloudsTargetOpacity = 0.5;
     earth.add(clouds);
     scene.add(earth);
+    loadingProgress = 75;
 
     earth.position.set(0, -4.3, 0);
     earth.rotateY(radians(15));
     earth.rotateZ(radians(-20));
+    fadeObjectsIn();
+    loadingProgress = 80;
 
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
@@ -78,9 +88,9 @@ function homeInit(): void {
     composer.addPass(fxaaPass);
     loadingProgress = 95;
 
-    const glitchPass = new GlitchPass();
-    composer.addPass(glitchPass);
-    loadingProgress = 100;
+    /*const glitchPass = new GlitchPass();
+    composer.addPass(glitchPass);*/
+    //loadingProgress = 100;
 
     //liftCurtain(earth, clouds, 0.4);
     //fadeObjectsIn(earth, clouds, 0.4);
@@ -95,6 +105,7 @@ function homeInit(): void {
     }, 1 / 30 * 1000);
 
     window.addEventListener('resize', () => onResize(camera, renderer, composer), false);
+    loadingProgress = 100;
 }
 
 function onResize(camera: THREE.OrthographicCamera, renderer: THREE.WebGLRenderer, composer: EffectComposer) {
@@ -102,6 +113,16 @@ function onResize(camera: THREE.OrthographicCamera, renderer: THREE.WebGLRendere
     renderer.setPixelRatio(getAdjustedPixelRatio());
     renderer.setSize(window.innerWidth, window.innerHeight);
     composer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function isPhone(): boolean {
+    return /Android/i.test(navigator.userAgent) ||
+        /webOS/i.test(navigator.userAgent) ||
+        /iPhone/i.test(navigator.userAgent) ||
+        /iPad/i.test(navigator.userAgent) ||
+        /iPod/i.test(navigator.userAgent) ||
+        /BlackBerry/i.test(navigator.userAgent) ||
+        /Windows Phone/i.test(navigator.userAgent);
 }
 
 function getAdjustedPixelRatio(): number {
@@ -146,8 +167,8 @@ function adjustProgressBar(): void {
 
 function liftCurtain(): void {
     let fadeFrame = 0, fadeDuration = 15;
-    earth.material.opacity = 1;
-    clouds.material.opacity = cloudsTargetOpacity;
+    //earth.material.opacity = 1;
+    //clouds.material.opacity = cloudsTargetOpacity;
     curtainRoutine = setInterval(() => {
         if (fadeFrame <= fadeDuration) {
             curtain.style.opacity = (1 - fadeFrame / fadeDuration).toString();
@@ -160,7 +181,6 @@ function liftCurtain(): void {
     }, 1 / 30 * 1000);
 }
 
-// unused
 function fadeObjectsIn(): void {
     let fadeFrame = 0, fadeDuration = 15;
     fadeRoutine = setInterval(() => {
