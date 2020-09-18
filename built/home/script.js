@@ -127,7 +127,7 @@ function getAdjustedPixelRatio() {
     else
         ratio = 0.5;
     if (isPhone()) {
-        ratio = height > width ? ratio * 0.1 : ratio * 0.33;
+        ratio = height > width ? ratio * 0.33 : ratio * 0.5;
     }
     return ratio;
 }
