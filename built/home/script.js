@@ -8,6 +8,7 @@ let homeCanvas;
 let fadeRoutine;
 let curtainRoutine;
 let progressRoutine;
+let frameRoutine;
 let bloomStrength;
 let bloomIncreasing;
 let bgSlider;
@@ -75,7 +76,7 @@ function homeInit() {
     //liftCurtain(earth, clouds, 0.4);
     //fadeObjectsIn(earth, clouds, 0.4);
     // each frame, at 30 fps
-    setInterval(() => {
+    frameRoutine = setInterval(() => {
         earth.rotateX(radians(0.025));
         clouds.rotateX(radians(0.045));
         adjustBloomStrength(bloomPass);
@@ -84,8 +85,6 @@ function homeInit() {
     }, 1 / 30 * 1000);
     window.addEventListener('resize', () => onResize(camera, renderer, composer), false);
     loadingProgress = 100;
-    document.getElementById("p").innerText = isPhone() + " / " + getAdjustedPixelRatio();
-    document.getElementById("s").innerText = window.innerWidth + "x" + window.innerHeight;
 }
 function load(loader, source) {
     return new Promise((resolve, reject) => {
@@ -97,6 +96,9 @@ function onResize(camera, renderer, composer) {
     renderer.setPixelRatio(getAdjustedPixelRatio());
     renderer.setSize(window.innerWidth, window.innerHeight);
     composer.setSize(window.innerWidth, window.innerHeight);
+    homeCanvas.remove();
+    clearTimeout(fadeRoutine), clearTimeout(curtainRoutine), clearTimeout(frameRoutine), clearTimeout(progressRoutine);
+    homeInit();
 }
 function isPhone() {
     return /Android/i.test(navigator.userAgent) ||
@@ -187,7 +189,7 @@ function fadeObjectsIn() {
 }
 // adapted from https://github.com/jeromeetienne/threex.planets/
 function createEarth(loader) {
-    const geometry = new THREE.SphereGeometry(0.5 * 7, isPhone() ? 64 : 128, isPhone() ? 64 : 128);
+    const geometry = new THREE.SphereGeometry(0.5 * 7, isPhone() ? 64 : 128, isPhone() ? 32 : 64);
     const material = new THREE.MeshPhongMaterial({
         map: loader.load("/assets/map.jpg"),
         bumpMap: loader.load("/assets/bump.jpg"),

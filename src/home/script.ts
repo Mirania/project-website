@@ -11,6 +11,7 @@ let homeCanvas: HTMLCanvasElement;
 let fadeRoutine: NodeJS.Timeout;
 let curtainRoutine: NodeJS.Timeout;
 let progressRoutine: NodeJS.Timeout;
+let frameRoutine: NodeJS.Timeout;
 let bloomStrength: number;
 let bloomIncreasing: boolean;
 let bgSlider: number;
@@ -95,7 +96,7 @@ function homeInit(): void {
     //fadeObjectsIn(earth, clouds, 0.4);
 
     // each frame, at 30 fps
-    setInterval(() => {
+    frameRoutine = setInterval(() => {
         earth.rotateX(radians(0.025));
         clouds.rotateX(radians(0.045));
         adjustBloomStrength(bloomPass);
@@ -105,9 +106,6 @@ function homeInit(): void {
 
     window.addEventListener('resize', () => onResize(camera, renderer, composer), false);
     loadingProgress = 100;
-
-    document.getElementById("p").innerText = isPhone() +" / " + getAdjustedPixelRatio();
-    document.getElementById("s").innerText = window.innerWidth+"x"+window.innerHeight;
 }
 
 function load(loader: THREE.TextureLoader, source: string): Promise<THREE.Texture> {
@@ -121,6 +119,9 @@ function onResize(camera: THREE.OrthographicCamera, renderer: THREE.WebGLRendere
     renderer.setPixelRatio(getAdjustedPixelRatio());
     renderer.setSize(window.innerWidth, window.innerHeight);
     composer.setSize(window.innerWidth, window.innerHeight);
+    homeCanvas.remove();
+    clearTimeout(fadeRoutine), clearTimeout(curtainRoutine), clearTimeout(frameRoutine), clearTimeout(progressRoutine);
+    homeInit();
 }
 
 function isPhone(): boolean {
@@ -211,7 +212,7 @@ function fadeObjectsIn(): void {
 
 // adapted from https://github.com/jeromeetienne/threex.planets/
 function createEarth(loader: THREE.TextureLoader): THREE.Mesh<THREE.Geometry, THREE.Material> {
-    const geometry = new THREE.SphereGeometry(0.5*7, isPhone() ? 64 : 128, isPhone() ? 64 : 128)
+    const geometry = new THREE.SphereGeometry(0.5*7, isPhone() ? 64 : 128, isPhone() ? 32 : 64)
     const material = new THREE.MeshPhongMaterial({
         map: loader.load("/assets/map.jpg"),
         bumpMap: loader.load("/assets/bump.jpg"),
