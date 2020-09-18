@@ -29,6 +29,10 @@ export function init(port: number): void {
         res.sendFile(`${root}/src/favicon.ico`);
     });
 
+    app.get("/Curriculum%20Vitae", (req, res) => {
+        res.sendFile(`${root}/src/global/Curriculum Vitae.pdf`);
+    });
+
     app.use(`/global`, express.static(`${root}/src/global`));
 
     app.listen(port, () => {

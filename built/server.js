@@ -24,6 +24,9 @@ function init(port) {
     app.get("/favicon.ico", (req, res) => {
         res.sendFile(`${root}/src/favicon.ico`);
     });
+    app.get("/Curriculum%20Vitae", (req, res) => {
+        res.sendFile(`${root}/src/global/Curriculum Vitae.pdf`);
+    });
     app.use(`/global`, express.static(`${root}/src/global`));
     app.listen(port, () => {
         console.log(`App listening at http://localhost:${port}.`);
