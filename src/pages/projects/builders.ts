@@ -184,11 +184,11 @@ function video(src: string, className: string): HTMLVideoElement {
 }
 
 function inlineHref(text: string, href: string): string {
-    return `<a href=${href}>${text}</a>`;
+    return `<a href=${href} target="_blank" rel="noopener noreferrer">${text}</a>`;
 }
 
 function inlineGoldHref(text: string, href: string): string {
-    return `<a class="gold" href=${href}>${text}</a>`;
+    return `<a class="gold" href=${href} target="_blank" rel="noopener noreferrer">${text}</a>`;
 }
 
 function inlineBr(): string {

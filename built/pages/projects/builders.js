@@ -140,10 +140,10 @@ function video(src, className) {
     return element;
 }
 function inlineHref(text, href) {
-    return `<a href=${href}>${text}</a>`;
+    return `<a href=${href} target="_blank" rel="noopener noreferrer">${text}</a>`;
 }
 function inlineGoldHref(text, href) {
-    return `<a class="gold" href=${href}>${text}</a>`;
+    return `<a class="gold" href=${href} target="_blank" rel="noopener noreferrer">${text}</a>`;
 }
 function inlineBr() {
     return "<br/>";

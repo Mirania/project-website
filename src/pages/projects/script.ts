@@ -4,7 +4,7 @@ projectCardBuilder.addLeftCard(
     ["projects/assets/1.mp4", "projects/assets/2.mp4", "projects/assets/3.mp4"],
     "Pokémon Unity",
     `A fully-fledged Pokémon game with a scale and complexity comparable to old school ` +
-    `mainstream Pokémon games, built from the ground up using the ${inlineHref("Unity Engine", "https://unity.com/")}. ` + 
+    `mainstream Pokémon games, built from the ground up using the ${inlineHref("Unity Engine", "https://unity.com/",)}. ` + 
     `It includes an entirely new story and a different take on some mechanics.${paragraph()} ` +
     `A playable demo will be available very soon.${paragraph()} ` + 
     `${inlineSmall("You can unmute and fullscreen any of the videos if you wish to.")}`,
