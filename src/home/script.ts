@@ -212,7 +212,7 @@ function fadeObjectsIn(): void {
 
 // adapted from https://github.com/jeromeetienne/threex.planets/
 function createEarth(loader: THREE.TextureLoader): THREE.Mesh<THREE.Geometry, THREE.Material> {
-    const geometry = new THREE.SphereGeometry(0.5*7, isPhone() ? 64 : 128, isPhone() ? 32 : 64)
+    const geometry = new THREE.SphereGeometry(0.5*7, isPhone() ? 48 : 128, isPhone() ? 24 : 64)
     const material = new THREE.MeshPhongMaterial({
         map: loader.load("/assets/map.jpg"),
         bumpMap: loader.load("/assets/bump.jpg"),
