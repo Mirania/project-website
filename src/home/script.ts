@@ -105,6 +105,9 @@ function homeInit(): void {
 
     window.addEventListener('resize', () => onResize(camera, renderer, composer), false);
     loadingProgress = 100;
+
+    document.getElementById("p").innerText = isPhone() +" / " + getAdjustedPixelRatio();
+    document.getElementById("s").innerText = window.innerWidth+"x"+window.innerHeight;
 }
 
 function load(loader: THREE.TextureLoader, source: string): Promise<THREE.Texture> {

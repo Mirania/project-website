@@ -84,6 +84,8 @@ function homeInit() {
     }, 1 / 30 * 1000);
     window.addEventListener('resize', () => onResize(camera, renderer, composer), false);
     loadingProgress = 100;
+    document.getElementById("p").innerText = isPhone() + " / " + getAdjustedPixelRatio();
+    document.getElementById("s").innerText = window.innerWidth + "x" + window.innerHeight;
 }
 function load(loader, source) {
     return new Promise((resolve, reject) => {
