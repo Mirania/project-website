@@ -24,7 +24,7 @@ let cloudsTargetOpacity: number;
 
 homeInit();
 
-async function homeInit(): Promise<void> {
+function homeInit(): void {
     progressBar = document.getElementById("progress") as HTMLDivElement;
     adjustProgressBar();
 
@@ -42,8 +42,7 @@ async function homeInit(): Promise<void> {
     camera.lookAt(scene.position);
     loadingProgress = 20;
 
-    const ratio = getAdjustedPixelRatio();
-    renderer.setPixelRatio(isPhone() ? ratio * 0.33 : ratio);
+    renderer.setPixelRatio(getAdjustedPixelRatio());
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     loadingProgress = 30;
@@ -58,8 +57,8 @@ async function homeInit(): Promise<void> {
     scene.add(light);
     loadingProgress = 40;
 
+    earth = createEarth(loader);
     clouds = createEarthClouds();
-    earth = await createEarth(loader);
     cloudsTargetOpacity = 0.5;
     earth.add(clouds);
     scene.add(earth);
@@ -135,13 +134,21 @@ function getAdjustedPixelRatio(): number {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const pixels = width * height;
-    if (pixels <= 360 * 720) return 0.75;
-    if (pixels <= 768 * 1024) return 0.9;
-    if (pixels <= 1500 * 1000) return 1;
-    if (pixels <= 2000 * 1100) return 1;
-    if (pixels <= 3000 * 2000) return 0.8;
-    if (pixels <= 4000 * 3000) return 0.65;
-    return 0.5;
+
+    let ratio: number;
+    if (pixels <= 360 * 720) ratio = 0.75;
+    else if (pixels <= 768 * 1024) ratio = 0.9;
+    else if (pixels <= 1500 * 1000) ratio = 1;
+    else if (pixels <= 2000 * 1100) ratio = 1;
+    else if (pixels <= 3000 * 2000) ratio = 0.8;
+    else if (pixels <= 4000 * 3000) ratio = 0.65;
+    else ratio = 0.5;
+
+    if (isPhone()) {
+        ratio = height > width ? ratio * 0.1 : ratio * 0.33;
+    }
+
+    return ratio;
 }
 
 function adjustBloomStrength(bloomPass: UnrealBloomPass): void {
@@ -200,13 +207,13 @@ function fadeObjectsIn(): void {
 }
 
 // adapted from https://github.com/jeromeetienne/threex.planets/
-async function createEarth(loader: THREE.TextureLoader): Promise<THREE.Mesh<THREE.Geometry, THREE.Material>> {
+function createEarth(loader: THREE.TextureLoader): THREE.Mesh<THREE.Geometry, THREE.Material> {
     const geometry = new THREE.SphereGeometry(0.5* 7, 128, 128)
     const material = new THREE.MeshPhongMaterial({
-        map: await load(loader, "/assets/map.jpg"),
-        bumpMap: await load(loader, "/assets/bump.jpg"),
+        map: loader.load("/assets/map.jpg"),
+        bumpMap: loader.load("/assets/bump.jpg"),
         bumpScale: 0.05,
-        specularMap: await load(loader, "/assets/spec.jpg"),
+        specularMap: loader.load("/assets/spec.jpg"),
         specular: new THREE.Color('grey'),
         transparent: true,
         opacity: 0

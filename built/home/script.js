@@ -34,8 +34,7 @@ function homeInit() {
     camera.position.set(5, 5, 5);
     camera.lookAt(scene.position);
     loadingProgress = 20;
-    const ratio = getAdjustedPixelRatio();
-    renderer.setPixelRatio(isPhone() ? ratio * 0.66 : ratio);
+    renderer.setPixelRatio(getAdjustedPixelRatio());
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     loadingProgress = 30;
@@ -86,6 +85,11 @@ function homeInit() {
     window.addEventListener('resize', () => onResize(camera, renderer, composer), false);
     loadingProgress = 100;
 }
+function load(loader, source) {
+    return new Promise((resolve, reject) => {
+        loader.load(source, resolve, undefined, reject);
+    });
+}
 function onResize(camera, renderer, composer) {
     camera.updateProjectionMatrix();
     renderer.setPixelRatio(getAdjustedPixelRatio());
@@ -105,19 +109,25 @@ function getAdjustedPixelRatio() {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const pixels = width * height;
+    let ratio;
     if (pixels <= 360 * 720)
-        return 0.75;
-    if (pixels <= 768 * 1024)
-        return 0.9;
-    if (pixels <= 1500 * 1000)
-        return 1;
-    if (pixels <= 2000 * 1100)
-        return 1;
-    if (pixels <= 3000 * 2000)
-        return 0.8;
-    if (pixels <= 4000 * 3000)
-        return 0.65;
-    return 0.5;
+        ratio = 0.75;
+    else if (pixels <= 768 * 1024)
+        ratio = 0.9;
+    else if (pixels <= 1500 * 1000)
+        ratio = 1;
+    else if (pixels <= 2000 * 1100)
+        ratio = 1;
+    else if (pixels <= 3000 * 2000)
+        ratio = 0.8;
+    else if (pixels <= 4000 * 3000)
+        ratio = 0.65;
+    else
+        ratio = 0.5;
+    if (isPhone()) {
+        ratio = height > width ? ratio * 0.1 : ratio * 0.33;
+    }
+    return ratio;
 }
 function adjustBloomStrength(bloomPass) {
     if (bloomStrength >= 0.3)
