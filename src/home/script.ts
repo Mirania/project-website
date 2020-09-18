@@ -24,7 +24,7 @@ let cloudsTargetOpacity: number;
 
 homeInit();
 
-function homeInit(): void {
+async function homeInit(): Promise<void> {
     progressBar = document.getElementById("progress") as HTMLDivElement;
     adjustProgressBar();
 
@@ -43,7 +43,7 @@ function homeInit(): void {
     loadingProgress = 20;
 
     const ratio = getAdjustedPixelRatio();
-    renderer.setPixelRatio(isPhone() ? ratio * 0.66 : ratio);
+    renderer.setPixelRatio(isPhone() ? ratio * 0.33 : ratio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     loadingProgress = 30;
@@ -58,8 +58,8 @@ function homeInit(): void {
     scene.add(light);
     loadingProgress = 40;
 
-    earth = createEarth(loader);
     clouds = createEarthClouds();
+    earth = await createEarth(loader);
     cloudsTargetOpacity = 0.5;
     earth.add(clouds);
     scene.add(earth);
@@ -106,6 +106,12 @@ function homeInit(): void {
 
     window.addEventListener('resize', () => onResize(camera, renderer, composer), false);
     loadingProgress = 100;
+}
+
+function load(loader: THREE.TextureLoader, source: string): Promise<THREE.Texture> {
+    return new Promise((resolve, reject) => {
+        loader.load(source, resolve, undefined, reject);
+    });
 }
 
 function onResize(camera: THREE.OrthographicCamera, renderer: THREE.WebGLRenderer, composer: EffectComposer) {
@@ -194,13 +200,13 @@ function fadeObjectsIn(): void {
 }
 
 // adapted from https://github.com/jeromeetienne/threex.planets/
-function createEarth(loader: THREE.TextureLoader): THREE.Mesh<THREE.Geometry, THREE.Material> {
+async function createEarth(loader: THREE.TextureLoader): Promise<THREE.Mesh<THREE.Geometry, THREE.Material>> {
     const geometry = new THREE.SphereGeometry(0.5* 7, 128, 128)
     const material = new THREE.MeshPhongMaterial({
-        map: loader.load("/assets/map.jpg"),
-        bumpMap: loader.load("/assets/bump.jpg"),
+        map: await load(loader, "/assets/map.jpg"),
+        bumpMap: await load(loader, "/assets/bump.jpg"),
         bumpScale: 0.05,
-        specularMap: loader.load("/assets/spec.jpg"),
+        specularMap: await load(loader, "/assets/spec.jpg"),
         specular: new THREE.Color('grey'),
         transparent: true,
         opacity: 0
