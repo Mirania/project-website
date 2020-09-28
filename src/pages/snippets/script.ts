@@ -1,13 +1,14 @@
 const snippetCardBuilder = new CardBuilder();
 
 snippetCardBuilder.addLeftCard(
-    "snippets/assets/firebase.png",
+    ["snippets/assets/firebase.png", "snippets/assets/firebase-java.png"],
     "Simple Firebase API",
-    `${langs("JavaScript and TypeScript")} ` +
-    `A ${inlineGoldHref("collection of functions", "https://github.com/Mirania/snippets/tree/master/TS%20-%20Firebase%20API")} ` +
+    `${langs("Java, JavaScript and TypeScript")} ` +
+    `A collection of functions (${inlineGoldHref("JavaScript", "https://github.com/Mirania/snippets/tree/master/TS%20-%20Firebase%20API")} / ` +
+    `${inlineGoldHref("Java", "https://github.com/Mirania/snippets/tree/master/Java%20-%20Firebase%20API")}) ` +
     `that make working with ${inlineHref("Firebase", "https://firebase.google.com/")} ` +
-    `databases extremely easy. ${paragraph()} The functions promisify and hide all the callbacks and method ` +
-    `chains required to perform the simplest operations (CRUD, connect), turning operations such as retrieving ` +
+    `databases extremely easy. ${paragraph()} The functions hide all the callbacks and method ` +
+    `chains required to perform the most important operations (CRUD, connect), turning operations such as retrieving ` +
     `a user's data into something as simple as ${code("db.get(\"users/1\")")} .`,
     false,
     true
